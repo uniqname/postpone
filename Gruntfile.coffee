@@ -1,7 +1,7 @@
 module.exports = (grunt) ->
 	grunt.initConfig
 		pkg: grunt.file.readJSON 'package.json'
-		
+
 		coffee:
             compile:
                 options:
@@ -27,7 +27,7 @@ module.exports = (grunt) ->
                     globals:
                         version: '<%= pkg.version %>'
                         date: '<%= grunt.template.today("yyyy/mm/dd") %>'
-                    
+
                     # Optional variable prefix & suffix, defaults as shown
                     prefix: '@@'
                     suffix: ''
