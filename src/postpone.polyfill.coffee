@@ -8,14 +8,15 @@
 @copyright     Copyright 2013 by Intellectual Reserve, Inc.
 ###
 window.addEventListener 'DOMContentLoaded', () ->
-    srcAttrName = 'data-src'
+    srcAttrName = 'data-postpone-src'
     supportsTestImg = document.createElement 'img'
 
     supportsAttr = (el, attr) ->
         return !!(attr in el)
 
     assessPostopnablity = (el) ->
-        variance =  parseInt(el.getAttribute 'postpone', 10)
+        attr = el.hasAttribute('data-postpone') ? 'data-postpone' : 'postpone';
+        variance =  parseInt(el.getAttribute attr, 10)
         variance = if isNaN variance then 0 else variance
 
         # delta vars: when value <= 0,
@@ -48,16 +49,16 @@ window.addEventListener 'DOMContentLoaded', () ->
     # handoff to client if it supports postpone
     if supportsAttr(supportsTestImg, 'postpone')
 
-        Array.prototype.forEach.call document.querySelectorAll('[postpone]'), ->
+        Array.prototype.forEach.call document.querySelectorAll('[postpone], [data-postpone]'), ->
             el.src = el.getAttribute(srcAttrName)
             el.removeAttribute(srcAttrName)
 
     else
 
-        assessPostopnablity el for el in document.querySelectorAll '[postpone]'
+        assessPostopnablity el for el in document.querySelectorAll '[postpone], [data-postpone]'
 
         window.addEventListener 'scroll', (e) ->
-            assessPostopnablity el for el in document.querySelectorAll '[postpone]'
+            assessPostopnablity el for el in document.querySelectorAll '[postpone], [data-postpone]'
 
         window.addEventListener 'resize', (e) ->
-            assessPostopnablity el for el in document.querySelectorAll('[postpone]')
+            assessPostopnablity el for el in document.querySelectorAll('[postpone], [data-postpone]')
