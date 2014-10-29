@@ -8,15 +8,26 @@
 @copyright     Copyright 2013 by Intellectual Reserve, Inc.
 ###
 window.addEventListener 'DOMContentLoaded', () ->
-    srcAttrName = 'data-postpone-src'
+
+    # Prefix for the attribute to be postponed.
+    srcAttrId = 'data-postpone-'
+
     supportsTestImg = document.createElement 'img'
 
     supportsAttr = (el, attr) ->
         return !!(attr in el)
 
     assessPostopnablity = (el) ->
-        attr = el.hasAttribute('data-postpone') ? 'data-postpone' : 'postpone';
-        variance =  parseInt(el.getAttribute attr, 10)
+
+        # Allows for authors to use a data- attr to act as the postpone boolean attr for validation
+        postponeName = if el.hasAttribute('data-postpone') then 'data-postpone' else 'postpone'
+        postponedAttr = do ->
+            for attr, i in el.attributes
+                attr = attr.name
+                if attr.match srcAttrId
+                    return attr.replace srcAttrId, ''
+
+        variance = parseInt(el.getAttribute postponeName, 10)
         variance = if isNaN variance then 0 else variance
 
         # delta vars: when value <= 0,
@@ -38,20 +49,27 @@ window.addEventListener 'DOMContentLoaded', () ->
 
         distanceFromTrigger = distanceFromInView - variance
 
+        # Postpone no more
         if distanceFromTrigger <= 0
-            src = el.getAttribute srcAttrName
+            src = el.getAttribute srcAttrId + postponedAttr
             if src
-                el.src = src
-                el.removeAttribute srcAttrName
+                el[postponedAttr] = src
+                el.removeAttribute srcAttrId + postponedAttr
                 el.removeAttribute 'postpone'
 
 
     # handoff to client if it supports postpone
     if supportsAttr(supportsTestImg, 'postpone')
 
-        Array.prototype.forEach.call document.querySelectorAll('[postpone], [data-postpone]'), ->
-            el.src = el.getAttribute(srcAttrName)
-            el.removeAttribute(srcAttrName)
+        Array.prototype.forEach.call document.querySelectorAll('[postpone], [data-postpone]'), (el) ->
+            postponedAttr = do ->
+                for i, attr of el.attributes
+                    attr = attr.name
+                    if attr.match srcAttrId
+                        return attr.replace srcAttrId, ''
+
+            el[postponedAttr] = el.getAttribute(srcAttrId + postponedAttr)
+            el.removeAttribute(srcAttrId + postponedAttr)
 
     else
 

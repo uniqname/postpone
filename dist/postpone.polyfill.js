@@ -3,7 +3,7 @@
 @description   implementation of postpone getAttribute
                 (https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/
                     ResourcePriorities/Overview.html#attr-postpone)
-@version       0.1.0 - 2014/04/30
+@version       0.1.0 - 2014/10/29
 @author        Cory Brown
 @copyright     Copyright 2013 by Intellectual Reserve, Inc.
 */
@@ -13,18 +13,27 @@
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   window.addEventListener('DOMContentLoaded', function() {
-    var assessPostopnablity, el, srcAttrName, supportsAttr, supportsTestImg, _i, _len, _ref;
-    srcAttrName = 'data-postpone-src';
+    var assessPostopnablity, el, srcAttrId, supportsAttr, supportsTestImg, _i, _len, _ref;
+    srcAttrId = 'data-postpone-';
     supportsTestImg = document.createElement('img');
     supportsAttr = function(el, attr) {
       return !!(__indexOf.call(el, attr) >= 0);
     };
     assessPostopnablity = function(el) {
-      var attr, deltaVPB, deltaVPL, deltaVPR, deltaVPT, distanceFromInView, distanceFromTrigger, src, variance, _ref;
-      attr = (_ref = el.hasAttribute('data-postpone')) != null ? _ref : {
-        'data-postpone': 'postpone'
-      };
-      variance = parseInt(el.getAttribute(attr, 10));
+      var deltaVPB, deltaVPL, deltaVPR, deltaVPT, distanceFromInView, distanceFromTrigger, postponeName, postponedAttr, src, variance;
+      postponeName = el.hasAttribute('data-postpone') ? 'data-postpone' : 'postpone';
+      postponedAttr = (function() {
+        var attr, i, _i, _len, _ref;
+        _ref = el.attributes;
+        for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+          attr = _ref[i];
+          attr = attr.name;
+          if (attr.match(srcAttrId)) {
+            return attr.replace(srcAttrId, '');
+          }
+        }
+      })();
+      variance = parseInt(el.getAttribute(postponeName, 10));
       variance = isNaN(variance) ? 0 : variance;
       deltaVPB = el.offsetTop - window.innerHeight - window.scrollY;
       deltaVPT = window.scrollY - (el.offsetTop + el.offsetHeight);
@@ -33,18 +42,30 @@
       distanceFromInView = Math.max(deltaVPT, deltaVPB, deltaVPL, deltaVPR, 0);
       distanceFromTrigger = distanceFromInView - variance;
       if (distanceFromTrigger <= 0) {
-        src = el.getAttribute(srcAttrName);
+        src = el.getAttribute(srcAttrId + postponedAttr);
         if (src) {
-          el.src = src;
-          el.removeAttribute(srcAttrName);
+          el[postponedAttr] = src;
+          el.removeAttribute(srcAttrId + postponedAttr);
           return el.removeAttribute('postpone');
         }
       }
     };
     if (supportsAttr(supportsTestImg, 'postpone')) {
-      return Array.prototype.forEach.call(document.querySelectorAll('[postpone], [data-postpone]'), function() {
-        el.src = el.getAttribute(srcAttrName);
-        return el.removeAttribute(srcAttrName);
+      return Array.prototype.forEach.call(document.querySelectorAll('[postpone], [data-postpone]'), function(el) {
+        var postponedAttr;
+        postponedAttr = (function() {
+          var attr, i, _ref;
+          _ref = el.attributes;
+          for (i in _ref) {
+            attr = _ref[i];
+            attr = attr.name;
+            if (attr.match(srcAttrId)) {
+              return attr.replace(srcAttrId, '');
+            }
+          }
+        })();
+        el[postponedAttr] = el.getAttribute(srcAttrId + postponedAttr);
+        return el.removeAttribute(srcAttrId + postponedAttr);
       });
     } else {
       _ref = document.querySelectorAll('[postpone], [data-postpone]');
