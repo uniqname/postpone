@@ -45,7 +45,7 @@ window.addEventListener 'DOMContentLoaded', () ->
         #delta of left edge of element from right edge of viewport
         deltaVPR = el.offsetLeft - (window.scrollX + window.innerWidth)
 
-        distanceFromInView = -1 * Math.max deltaVPT, deltaVPB, deltaVPL, deltaVPR
+        distanceFromInView = Math.max deltaVPT, deltaVPB, deltaVPL, deltaVPR
 
         distanceFromTrigger = distanceFromInView - variance
 

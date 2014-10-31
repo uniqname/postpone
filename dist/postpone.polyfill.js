@@ -3,7 +3,7 @@
 @description   implementation of postpone getAttribute
                 (https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/
                     ResourcePriorities/Overview.html#attr-postpone)
-@version       0.1.0 - 2014/10/30
+@version       0.1.0 - 2014/10/31
 @author        Cory Brown
 @copyright     Copyright 2013 by Intellectual Reserve, Inc.
 */
@@ -39,7 +39,7 @@
       deltaVPT = window.scrollY - (el.offsetTop + el.offsetHeight);
       deltaVPL = window.scrollX - (el.offsetLeft + el.offsetWidth);
       deltaVPR = el.offsetLeft - (window.scrollX + window.innerWidth);
-      distanceFromInView = -1 * Math.max(deltaVPT, deltaVPB, deltaVPL, deltaVPR);
+      distanceFromInView = Math.max(deltaVPT, deltaVPB, deltaVPL, deltaVPR);
       distanceFromTrigger = distanceFromInView - variance;
       if (distanceFromTrigger <= 0) {
         src = el.getAttribute(srcAttrId + postponedAttr);
